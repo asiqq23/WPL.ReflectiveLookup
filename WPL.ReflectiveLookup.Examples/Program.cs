@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -24,6 +25,18 @@ namespace WPL.ReflectiveLookup.Examples
                 .FullNames();
 
             foreach (var ins in instances2)
+            {
+                Console.WriteLine(ins);
+            }
+
+            var instances3 = new Reflective<Base>()
+                .Abstract(() => false)
+                .Lookup()
+                .WithAttribute(() => typeof(DisplayNameAttribute))
+                .FullNames();
+
+
+            foreach (var ins in instances3)
             {
                 Console.WriteLine(ins);
             }

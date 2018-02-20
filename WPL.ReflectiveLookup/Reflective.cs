@@ -9,13 +9,14 @@ namespace WPL.ReflectiveLookup
     {
         private List<Type> lookups = new List<Type>();
         private bool _withAbstract = true;
-        
+
         public Reflective<TLookup> Lookup()
         {
             lookups = Assembly
                 .GetAssembly(typeof(TLookup))
                 .GetTypes()
                 .Where(p => p.IsClass && p.IsAbstract == _withAbstract && p.IsSubclassOf(typeof(TLookup)))
+                
                 .ToList();
 
             return this;
@@ -35,11 +36,20 @@ namespace WPL.ReflectiveLookup
             return this;
         }
 
+        public Reflective<TLookup> WithAttribute(Func<Type> withType)
+        {
+            lookups = lookups
+                .Where(p => Attribute.GetCustomAttribute(p, withType()) != null)
+                .ToList();
+
+            return this;
+        }
+
         public IEnumerable<TLookup> WithInstances(Func<object[]> args =null)
         {
-            return lookups.Select(type => args != null
-                ? (TLookup) Activator.CreateInstance(type, args())
-                : (TLookup) Activator.CreateInstance(type));
+            return lookups.Select(p => args != null
+                ? (TLookup) Activator.CreateInstance(p, args())
+                : (TLookup) Activator.CreateInstance(p));
         }
 
         public IEnumerable<string> Names()
